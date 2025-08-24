@@ -1,112 +1,125 @@
 // cloudflare pages function for dynamic css serving
-// handles theme-specific css generation
-
-const fs = require('fs');
-const path = require('path');
 
 // generate random pastel color
 function generateRandomPastelColor() {
-    const hue = Math.floor(Math.random() * 360);
-    const saturation = 30 + Math.floor(Math.random() * 40); // 30-70% saturation
-    const lightness = 70 + Math.floor(Math.random() * 20); // 70-90% lightness
-    return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+  const hue = Math.floor(Math.random() * 360);
+  const saturation = Math.floor(Math.random() * 30) + 25; // 25-55%
+  const lightness = Math.floor(Math.random() * 20) + 70;  // 70-90%
+  return { h: hue, s: saturation, l: lightness };
 }
 
 // convert hsl to rgb
 function hslToRgb(h, s, l) {
-    h /= 360;
-    s /= 100;
-    l /= 100;
-    
-    const hue2rgb = (p, q, t) => {
-        if (t < 0) t += 1;
-        if (t > 1) t -= 1;
-        if (t < 1/6) return p + (q - p) * 6 * t;
-        if (t < 1/2) return q;
-        if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
-        return p;
-    };
-    
-    let r, g, b;
-    
-    if (s === 0) {
-        r = g = b = l; // achromatic
-    } else {
-        const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-        const p = 2 * l - q;
-        r = hue2rgb(p, q, h + 1/3);
-        g = hue2rgb(p, q, h);
-        b = hue2rgb(p, q, h - 1/3);
-    }
-    
-    return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
-}
+  s /= 100;
+  l /= 100;
+  const c = (1 - Math.abs(2 * l - 1)) * s;
+  const x = c * (1 - Math.abs((h / 60) % 2 - 1));
+  const m = l - c / 2;
+  let r, g, b;
 
-// generate css for pastel theme
-function generatePastelThemeCSS() {
-    const pastelColor = generateRandomPastelColor();
-    const hslMatch = pastelColor.match(/hsl\((\d+),\s*(\d+)%,\s*(\d+)%\)/);
-    
-    if (!hslMatch) return '';
-    
-    const [, h, s, l] = hslMatch.map(Number);
-    const [r, g, b] = hslToRgb(h, s, l);
-    
-    return `
-/* dynamic pastel theme variables */
-[data-theme="pastel"] {
-    --background: #000000;
-    --text: rgba(${r}, ${g}, ${b}, 0.85);
-    --text-muted: rgba(${r}, ${g}, ${b}, 0.5);
-    --text-bright: rgba(${r}, ${g}, ${b}, 0.95);
-    --card-bg: rgba(${r}, ${g}, ${b}, 0.1);
-    --card-hover: rgba(${r}, ${g}, ${b}, 0.15);
-    --border: rgba(${r}, ${g}, ${b}, 0.2);
-    --hover-border: rgba(${r}, ${g}, ${b}, 0.4);
-    --button-bg: rgba(${r}, ${g}, ${b}, 0.15);
-    --button-hover: rgba(${r}, ${g}, ${b}, 0.25);
-    --link-color: ${pastelColor};
-    --link-hover: rgba(${r}, ${g}, ${b}, 0.8);
-    --notification-success-bg: rgba(80, 250, 123, 0.8);
-    --notification-error-bg: rgba(255, 85, 85, 0.8);
-    --notification-info-bg: rgba(${r}, ${g}, ${b}, 0.8);
-}
+  if (0 <= h && h < 60) {
+    r = c; g = x; b = 0;
+  } else if (60 <= h && h < 120) {
+    r = x; g = c; b = 0;
+  } else if (120 <= h && h < 180) {
+    r = 0; g = c; b = x;
+  } else if (180 <= h && h < 240) {
+    r = 0; g = x; b = c;
+  } else if (240 <= h && h < 300) {
+    r = x; g = 0; b = c;
+  } else if (300 <= h && h < 360) {
+    r = c; g = 0; b = x;
+  }
 
-/* ensure custom cursor on pastel theme */
-[data-theme="pastel"] * {
-    cursor: url('cursor.png'), auto !important;
-}
-    `;
+  r = Math.round((r + m) * 255);
+  g = Math.round((g + m) * 255);
+  b = Math.round((b + m) * 255);
+
+  return { r, g, b };
 }
 
 export async function onRequest(context) {
-    const { request, env } = context;
-    const url = new URL(request.url);
-    const theme = url.searchParams.get('theme') || 'pink';
+  const { request } = context;
+  const url = new URL(request.url);
+  const theme = url.searchParams.get('theme') || 'pink';
+  
+  try {
+    // fetch base css from public folder
+    const baseCssResponse = await fetch(new URL('/style.css', url.origin));
+    const baseCss = await baseCssResponse.text();
     
-    try {
-        // get base css from public folder
-        const baseCSS = await env.ASSETS.fetch(new URL('/style.css', url.origin));
-        let cssContent = await baseCSS.text();
-        
-        // if pastel theme, append dynamic css
-        if (theme === 'pastel') {
-            const pastelCSS = generatePastelThemeCSS();
-            cssContent += pastelCSS;
+    if (theme === 'pastel') {
+      // generate random pastel colors
+      const primaryColor = generateRandomPastelColor();
+      const secondaryColor = generateRandomPastelColor();
+      const accentColor = generateRandomPastelColor();
+      
+      const primaryRgb = hslToRgb(primaryColor.h, primaryColor.s, primaryColor.l);
+      const secondaryRgb = hslToRgb(secondaryColor.h, secondaryColor.s, secondaryColor.l);
+      const accentRgb = hslToRgb(accentColor.h, accentColor.s, accentColor.l);
+      
+      // append dynamic pastel css
+      const dynamicCss = `
+
+/* dynamic pastel theme */
+:root {
+  --primary-color: rgb(${primaryRgb.r}, ${primaryRgb.g}, ${primaryRgb.b});
+  --secondary-color: rgb(${secondaryRgb.r}, ${secondaryRgb.g}, ${secondaryRgb.b});
+  --accent-color: rgb(${accentRgb.r}, ${accentRgb.g}, ${accentRgb.b});
+}
+
+body {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: #333;
+}
+
+.error-code {
+  color: var(--accent-color);
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+.error-message {
+  color: #444;
+}
+
+.error-submessage {
+  color: #666;
+}
+
+a {
+  color: var(--accent-color);
+}
+
+a:hover {
+  color: #333;
+  background-color: var(--accent-color);
+}
+
+.cat-art {
+  color: var(--accent-color);
+  opacity: 0.8;
+}
+`;
+      
+      return new Response(baseCss + dynamicCss, {
+        headers: {
+          'Content-Type': 'text/css',
+          'Cache-Control': 'public, max-age=300'
         }
-        
-        return new Response(cssContent, {
-            headers: {
-                'Content-Type': 'text/css',
-                'Cache-Control': 'public, max-age=300', // 5 minute cache for dynamic content
-                'Vary': 'Accept-Encoding'
-            }
-        });
-    } catch (error) {
-        console.error('css generation error:', error);
-        return new Response('/* css error */', {
-            status: 500,
-            headers: { 'Content-Type': 'text/css' }
-        });
+      });
+    } else {
+      // serve base css for other themes
+      return new Response(baseCss, {
+        headers: {
+          'Content-Type': 'text/css',
+          'Cache-Control': 'public, max-age=3600'
+        }
+      });
     }
+  } catch (error) {
+    return new Response('/* error loading css */', {
+      status: 500,
+      headers: { 'Content-Type': 'text/css' }
+    });
+  }
 }

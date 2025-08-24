@@ -1,18 +1,24 @@
 {
   "name": "404-error-page",
   "version": "1.0.0",
-  "description": "Dynamic 404 error page with multiple themes and status codes for Node.js web server",
+  "description": "Dynamic 404 error page with multiple themes and status codes - Cloudflare Pages",
   "type": "module",
-  "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js",
-    "test": "node test-setup.js"
+    "dev": "wrangler pages dev",
+    "deploy": "wrangler pages deploy",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["404", "error-page", "nodejs", "express", "dynamic", "themes"],
+  "keywords": [
+    "404",
+    "error-page",
+    "dynamic",
+    "themes",
+    "cloudflare-pages",
+    "serverless"
+  ],
   "author": "Minoa",
   "license": "MIT",
-  "dependencies": {
-    "express": "^4.18.2"
+  "devDependencies": {
+    "wrangler": "^3.0.0"
   }
 }

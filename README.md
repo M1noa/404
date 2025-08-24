@@ -1,113 +1,115 @@
-# 404 Error Page - Node.js Server
+# 404 Error Page - Cloudflare Pages
 
-A dynamic 404 error page with multiple themes and status codes, built with Express.js for Node.js deployment.
+A dynamic 404 error page with multiple themes and status codes, built for Cloudflare Pages with serverless functions.
 
 ## Features
 
-- **Dynamic Themes**: Pink, white, and randomly generated pastel themes
-- **Multiple Status Codes**: 404 (Not Found), 501 (Not Implemented), 418 (I'm a Teapot)
-- **Interactive Elements**: Clickable cat ASCII art with hover effects
-- **Responsive Design**: Works on all device sizes
-- **SEO Optimized**: Proper meta tags and Open Graph support
-- **Fast Loading**: Optimized Express.js server with static file serving
+- **Dynamic Theme System**: Pink, white, and pastel themes with random color generation
+- **Multiple Status Codes**: 404, 501, and 418 (I'm a teapot) error pages
+- **Dynamic CSS Generation**: Serverless CSS generation based on theme selection
+- **Interactive Elements**: Hover effects and smooth transitions
+- **Static File Serving**: Optimized static asset delivery via Cloudflare's CDN
+- **Responsive Design**: Works on desktop and mobile devices
+- **Edge Computing**: Fast response times with Cloudflare's global network
 
 ## Project Structure
 
 ```
 404/
-├── public/                 # Static assets served by Express
+├── public/                 # Static assets served by Cloudflare Pages
 │   ├── index.html         # Main HTML template
 │   ├── style.css          # Base CSS styles
 │   ├── cursor.png         # Custom cursor image
-│   ├── noise.png          # Background texture
-│   └── robots.txt         # SEO robots file
-├── server.js              # Main Express.js server
-├── package.json           # Node.js dependencies and scripts
+│   ├── noise.png          # Background noise texture
+│   └── robots.txt         # Robots.txt file
+├── functions/              # Cloudflare Pages Functions
+│   ├── index.js           # Main function handler
+│   └── style.css.js       # Dynamic CSS generation function
+├── _routes.json           # Cloudflare Pages routing configuration
+├── wrangler.toml          # Cloudflare deployment configuration
+├── package.json           # Project dependencies and scripts
+├── test-setup.js          # Setup verification script
 └── README.md              # This file
 ```
 
-## Installation & Usage
+## Installation & Development
 
-### Prerequisites
-
-1. Install [Node.js](https://nodejs.org/) (v18 or later)
-
-### Local Development
-
-1. Clone the repository:
-   ```bash
-   git clone <repository-url>
-   cd 404
-   ```
-
-2. Install dependencies:
+1. **Install dependencies**:
    ```bash
    npm install
    ```
 
-3. Start the development server:
-   ```bash
-   npm start
-   ```
-   or
+2. **Start local development**:
    ```bash
    npm run dev
    ```
 
-4. Open your browser to `http://localhost:3000`
+3. **Access the application**:
+   - Open the local development URL in your browser
+   - Try different themes: `?theme=pink`, `?theme=white`, `?theme=pastel`
+   - Try different status codes: `?status=404`, `?status=501`, `?status=418`
 
-### Production Deployment
+## Deployment
 
-Deploy to any Node.js hosting platform:
+### Deploy to Cloudflare Pages
 
-- **Heroku**: `git push heroku main`
-- **Railway**: Connect your GitHub repository
-- **DigitalOcean App Platform**: Deploy from GitHub
-- **AWS/GCP/Azure**: Use their Node.js deployment options
+1. **Using Wrangler CLI**:
+   ```bash
+   npm run deploy
+   ```
 
-Make sure to set the `PORT` environment variable if required by your hosting platform.
+2. **Using Git Integration**:
+   - Connect your GitHub repository to Cloudflare Pages
+   - Set build command: `echo 'no build required'`
+   - Set build output directory: `public`
+   - Enable Functions (automatic with `/functions` directory)
 
 ## Technical Details
 
-### Express.js Server
+### Cloudflare Pages Functions
 
-This project uses Express.js to handle server-side logic:
-
-- **Dynamic Theme Selection**: Randomly selects from pink, white, or pastel themes
-- **Status Code Handling**: Returns appropriate HTTP status codes (404, 501, 418)
-- **CSS Generation**: Dynamically generates pastel colors for the pastel theme
-- **HTML Templating**: Injects dynamic content into the HTML template
-- **Static File Serving**: Serves assets from the `public/` directory
+The serverless functions handle:
+- **Dynamic CSS Serving** (`/style.css.js`): Generates theme-specific CSS on-the-fly
+- **Route Handling** (`/index.js`): Serves the main HTML template with dynamic content
+- **Theme & Status Code Logic**: Automatically assigns themes and status codes based on URL parameters
+- **HTML Template Injection**: Dynamically injects error codes and messages
 
 ### Theme System
 
-1. **Pink Theme**: Classic pink and purple gradient background
-2. **White Theme**: Clean white background with subtle styling
-3. **Pastel Theme**: Randomly generated pastel colors using HSL color space
+- **Pink Theme**: Default pink gradient background
+- **White Theme**: Clean white background with subtle styling
+- **Pastel Theme**: Randomly generated pastel colors using HSL to RGB conversion
 
-### API Endpoints
+### Dynamic CSS Generation
 
-- `GET /style.css?theme=<theme>`: Serves dynamic CSS based on theme
-- `GET /*`: Catches all other routes and serves the 404 page with random configuration
+The CSS function generates styles dynamically for the pastel theme:
+- Generates random HSL values for pastel colors
+- Converts HSL to RGB for CSS compatibility
+- Applies colors to various UI elements
+- Leverages Cloudflare's edge caching for performance
 
-### Performance Optimizations
+### Routing Configuration
 
-- Static assets served efficiently by Express
-- Minimal JavaScript for interactive effects
-- Optimized CSS with efficient selectors
-- Compressed images and assets
+The `_routes.json` file configures:
+- All routes (`/*`) are handled by Functions
+- Static assets (`/public/*`) are excluded and served directly
+- Optimal performance with CDN delivery
 
-## Customization
+## Testing
 
-To customize the error messages or add new themes:
+Run the setup verification script:
+```bash
+node test-setup.js
+```
 
-1. Edit `server.js` to modify the `errorConfigs` array
-2. Add new CSS themes in the `/style.css` route handler
-3. Update the HTML template in `public/index.html`
+This verifies that all required files are present and configurations are correct for Cloudflare Pages deployment.
 
-## Environment Variables
+## Performance
 
-- `PORT`: Server port (default: 3000)
+- **Global CDN**: Static assets served from Cloudflare's global network
+- **Edge Computing**: Functions run at the edge for minimal latency
+- **Caching**: Intelligent caching for both static and dynamic content
+- **Zero Cold Starts**: Cloudflare Pages Functions have minimal cold start times
 
 ## Author
 

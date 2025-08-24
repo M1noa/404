@@ -1,23 +1,16 @@
 name = "404-error-page"
-compatibility_date = "2023-05-18"
+compatibility_date = "2024-08-24"
 compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = "public"
 
 [env.production]
-route = { pattern = "*", zone_name = "minoa.cat" }
+vars = { ENVIRONMENT = "production" }
+routes = ["*/*"]
 
-[env.production.vars]
-ENVIRONMENT = "production"
-
-[[env.production.routes]]
-pattern = "*.minoa.cat/*"
-zone_name = "minoa.cat"
-
+# build configuration
 [build]
-command = "echo 'No build step required'"
+command = "echo 'no build required'"
 
-[pages]
-build_output_dir = "public"
-functions_dir = "functions"
-
-[pages.env.production.vars]
-ENVIRONMENT = "production"
+# functions directory
+[functions]
+directory = "functions"
