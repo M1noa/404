@@ -5,12 +5,3 @@ pages_build_output_dir = "public"
 
 [env.production]
 vars = { ENVIRONMENT = "production" }
-routes = ["*/*"]
-
-# build configuration
-[build]
-command = "echo 'no build required'"
-
-# functions directory
-[functions]
-directory = "functions"
