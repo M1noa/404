@@ -39,72 +39,45 @@ function hslToRgb(h, s, l) {
 }
 
 export async function onRequest(context) {
-  const { request } = context;
+  const { request, env } = context;
   const url = new URL(request.url);
   const theme = url.searchParams.get('theme') || 'pink';
   
   try {
-    // fetch base css from public folder
-    const baseCssResponse = await fetch(new URL('/style.css', url.origin));
+    // fetch base css from assets
+    const baseCssResponse = await env.ASSETS.fetch(new URL('/style.css', url.origin));
+    if (!baseCssResponse.ok) {
+      throw new Error(`Failed to fetch base CSS: ${baseCssResponse.status}`);
+    }
     const baseCss = await baseCssResponse.text();
     
     if (theme === 'pastel') {
-      // generate random pastel colors
-      const primaryColor = generateRandomPastelColor();
-      const secondaryColor = generateRandomPastelColor();
-      const accentColor = generateRandomPastelColor();
+      // generate random pastel color to replace white
+      const pastelColor = generateRandomPastelColor();
+      const pastelRgb = hslToRgb(pastelColor.h, pastelColor.s, pastelColor.l);
       
-      const primaryRgb = hslToRgb(primaryColor.h, primaryColor.s, primaryColor.l);
-      const secondaryRgb = hslToRgb(secondaryColor.h, secondaryColor.s, secondaryColor.l);
-      const accentRgb = hslToRgb(accentColor.h, accentColor.s, accentColor.l);
+      // replace all white (255, 255, 255) with the random pastel color
+      const pastelCss = baseCss.replace(/255, 255, 255/g, `${pastelRgb.r}, ${pastelRgb.g}, ${pastelRgb.b}`);
       
-      // append dynamic pastel css
-      const dynamicCss = `
-
-/* dynamic pastel theme */
-:root {
-  --primary-color: rgb(${primaryRgb.r}, ${primaryRgb.g}, ${primaryRgb.b});
-  --secondary-color: rgb(${secondaryRgb.r}, ${secondaryRgb.g}, ${secondaryRgb.b});
-  --accent-color: rgb(${accentRgb.r}, ${accentRgb.g}, ${accentRgb.b});
-}
-
-body {
-  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-  color: #333;
-}
-
-.error-code {
-  color: var(--accent-color);
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-}
-
-.error-message {
-  color: #444;
-}
-
-.error-submessage {
-  color: #666;
-}
-
-a {
-  color: var(--accent-color);
-}
-
-a:hover {
-  color: #333;
-  background-color: var(--accent-color);
-}
-
-.cat-art {
-  color: var(--accent-color);
-  opacity: 0.8;
-}
-`;
+      // also replace #ffffff and #f0f0f0 with pastel equivalents
+      const pastelHex = `#${pastelRgb.r.toString(16).padStart(2, '0')}${pastelRgb.g.toString(16).padStart(2, '0')}${pastelRgb.b.toString(16).padStart(2, '0')}`;
+      const lighterPastelRgb = {
+        r: Math.min(255, Math.round(pastelRgb.r * 1.1)),
+        g: Math.min(255, Math.round(pastelRgb.g * 1.1)),
+        b: Math.min(255, Math.round(pastelRgb.b * 1.1))
+      };
+      const lighterPastelHex = `#${lighterPastelRgb.r.toString(16).padStart(2, '0')}${lighterPastelRgb.g.toString(16).padStart(2, '0')}${lighterPastelRgb.b.toString(16).padStart(2, '0')}`;
       
-      return new Response(baseCss + dynamicCss, {
+      const finalCss = pastelCss
+         .replace(/#ffffff/g, pastelHex)
+         .replace(/#f0f0f0/g, lighterPastelHex);
+       
+       return new Response(finalCss, {
         headers: {
           'Content-Type': 'text/css',
-          'Cache-Control': 'public, max-age=300'
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
         }
       });
     } else {

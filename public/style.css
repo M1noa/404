@@ -99,6 +99,93 @@
     }
 }
 
+@keyframes broken-light {
+    0% { 
+        opacity: 1;
+        text-shadow: 0 0 7px var(--text-bright), 0 0 15px var(--text-bright);
+    }
+    2% { 
+        opacity: 0.1;
+        text-shadow: 0 0 2px var(--text-bright), 0 0 5px var(--text-muted);
+    }
+    4% { 
+        opacity: 1;
+        text-shadow: 0 0 12px var(--text-bright), 0 0 25px var(--text-bright);
+    }
+    8% { 
+        opacity: 0.3;
+        text-shadow: 0 0 3px var(--text-bright), 0 0 8px var(--text-muted);
+    }
+    12% { 
+        opacity: 1;
+        text-shadow: 0 0 7px var(--text-bright), 0 0 15px var(--text-bright);
+    }
+    15% { 
+        opacity: 0;
+        text-shadow: none;
+    }
+    17% { 
+        opacity: 0.8;
+        text-shadow: 0 0 5px var(--text-bright), 0 0 12px var(--text);
+    }
+    25% { 
+        opacity: 1;
+        text-shadow: 0 0 7px var(--text-bright), 0 0 15px var(--text-bright);
+    }
+    30% { 
+        opacity: 0.2;
+        text-shadow: 0 0 1px var(--text-bright), 0 0 3px var(--text-muted);
+    }
+    35% { 
+        opacity: 1;
+        text-shadow: 0 0 10px var(--text-bright), 0 0 20px var(--text-bright);
+    }
+    45% { 
+        opacity: 0.6;
+        text-shadow: 0 0 4px var(--text-bright), 0 0 10px var(--text);
+    }
+    50% { 
+        opacity: 1;
+        text-shadow: 0 0 7px var(--text-bright), 0 0 15px var(--text-bright);
+    }
+    55% { 
+        opacity: 0;
+        text-shadow: none;
+    }
+    58% { 
+        opacity: 0.9;
+        text-shadow: 0 0 6px var(--text-bright), 0 0 13px var(--text);
+    }
+    70% { 
+        opacity: 1;
+        text-shadow: 0 0 7px var(--text-bright), 0 0 15px var(--text-bright);
+    }
+    75% { 
+        opacity: 0.4;
+        text-shadow: 0 0 2px var(--text-bright), 0 0 6px var(--text-muted);
+    }
+    80% { 
+        opacity: 1;
+        text-shadow: 0 0 9px var(--text-bright), 0 0 18px var(--text-bright);
+    }
+    85% { 
+        opacity: 0.1;
+        text-shadow: 0 0 1px var(--text-bright), 0 0 2px var(--text-muted);
+    }
+    90% { 
+        opacity: 1;
+        text-shadow: 0 0 7px var(--text-bright), 0 0 15px var(--text-bright);
+    }
+    95% { 
+        opacity: 0.7;
+        text-shadow: 0 0 5px var(--text-bright), 0 0 11px var(--text);
+    }
+    100% { 
+        opacity: 1;
+        text-shadow: 0 0 7px var(--text-bright), 0 0 15px var(--text-bright);
+    }
+}
+
 .cat-ascii {
     font-family: monospace;
     white-space: pre;
@@ -196,7 +283,7 @@ header h1 {
     color: var(--text-bright);
     margin-bottom: 0.5rem;
     text-shadow: 0 0 7px var(--text-bright), 0 0 15px rgba(255, 184, 201, 0.6);
-    transition: text-shadow 0.3s ease, color 0.3s ease;
+    animation: broken-light 3.5s infinite;
 }
 
 header p {
