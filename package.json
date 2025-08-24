@@ -1,0 +1,18 @@
+{
+  "name": "404-error-page",
+  "version": "1.0.0",
+  "description": "Dynamic 404 error page with multiple themes and status codes for Node.js web server",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test": "node test-setup.js"
+  },
+  "keywords": ["404", "error-page", "nodejs", "express", "dynamic", "themes"],
+  "author": "Minoa",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}

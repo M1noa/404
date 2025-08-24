@@ -1,0 +1,9 @@
+User-agent: *
+Disallow: /
+
+# This is a 404 error page
+# No indexing or crawling allowed
+Crawl-delay: 86400
+
+# Sitemap not applicable for error pages
+# Contact: https://minoa.cat/
